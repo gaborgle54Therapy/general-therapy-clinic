@@ -56,62 +56,65 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#0b5cff_0%,#020617_38%,#111827_100%)] flex items-center justify-center p-6">
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        <section className="text-white hidden lg:block">
-          <div className="bg-white rounded-[32px] p-5 w-[150px] h-[150px] flex items-center justify-center shadow-2xl mb-8">
-            <Image src="/logo.png" alt="General Therapy Clinic" width={120} height={120} priority />
+    <main style={styles.main}>
+      <div style={styles.container}>
+        <section style={styles.leftPanel}>
+          <div style={styles.logoBox}>
+            <Image
+              src="/logo.png"
+              alt="General Therapy Clinic"
+              width={120}
+              height={120}
+              priority
+            />
           </div>
 
-          <p className="text-cyan-300 font-black tracking-[3px] mb-4">
-            SISTEMA CLÍNICO INTEGRAL
+          <p style={styles.label}>SISTEMA CLÍNICO INTEGRAL</p>
+
+          <h1 style={styles.title}>General Therapy Clinic</h1>
+
+          <p style={styles.subtitle}>
+            Panel profesional para pacientes, citas, expedientes clínicos y
+            seguimiento terapéutico.
           </p>
 
-          <h1 className="text-6xl font-black leading-tight mb-5">
-            General Therapy Clinic
-          </h1>
-
-          <p className="text-xl text-blue-100 max-w-xl font-semibold">
-            Panel profesional para pacientes, citas, expedientes clínicos y seguimiento terapéutico.
-          </p>
-
-          <p className="mt-10 text-cyan-200 font-bold text-lg">
+          <p style={styles.phrase}>
             “Tu esfuerzo de hoy es la recuperación de mañana.”
           </p>
         </section>
 
-        <section className="bg-white/95 backdrop-blur-xl rounded-[34px] shadow-2xl p-8 md:p-10 border border-cyan-200/30">
-          <div className="lg:hidden flex justify-center mb-6">
-            <div className="bg-white rounded-[26px] p-4 w-[120px] h-[120px] flex items-center justify-center shadow-xl">
-              <Image src="/logo.png" alt="General Therapy Clinic" width={95} height={95} priority />
-            </div>
+        <section style={styles.loginCard}>
+          <div style={styles.mobileLogoBox}>
+            <Image
+              src="/logo.png"
+              alt="General Therapy Clinic"
+              width={90}
+              height={90}
+              priority
+            />
           </div>
 
-          <p className="text-blue-600 font-black tracking-[2px] text-sm mb-2 text-center lg:text-left">
-            ACCESO SEGURO
-          </p>
+          <p style={styles.accessLabel}>ACCESO SEGURO</p>
 
-          <h2 className="text-4xl font-black text-slate-900 mb-2 text-center lg:text-left">
-            Iniciar sesión
-          </h2>
+          <h2 style={styles.loginTitle}>Iniciar sesión</h2>
 
-          <p className="text-slate-500 font-semibold mb-8 text-center lg:text-left">
+          <p style={styles.loginSubtitle}>
             Ingresa al sistema clínico de General Therapy Clinic.
           </p>
 
-          <label className="font-black text-slate-700">Correo electrónico</label>
+          <label style={styles.inputLabel}>Correo electrónico</label>
           <input
             type="email"
-            className="w-full border border-slate-200 rounded-2xl p-4 mt-2 mb-5 outline-none focus:ring-4 focus:ring-blue-200 font-semibold text-slate-900"
+            style={styles.input}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="correo@ejemplo.com"
           />
 
-          <label className="font-black text-slate-700">Contraseña</label>
+          <label style={styles.inputLabel}>Contraseña</label>
           <input
             type="password"
-            className="w-full border border-slate-200 rounded-2xl p-4 mt-2 mb-8 outline-none focus:ring-4 focus:ring-blue-200 font-semibold text-slate-900"
+            style={styles.input}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Tu contraseña"
@@ -123,12 +126,16 @@ export default function LoginPage() {
           <button
             onClick={iniciarSesion}
             disabled={cargando}
-            className="w-full bg-gradient-to-r from-blue-700 to-cyan-500 hover:from-blue-800 hover:to-cyan-600 text-white py-4 rounded-2xl font-black shadow-xl disabled:opacity-70"
+            style={{
+              ...styles.button,
+              opacity: cargando ? 0.7 : 1,
+              cursor: cargando ? "not-allowed" : "pointer",
+            }}
           >
             {cargando ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
 
-          <p className="text-center text-slate-400 font-semibold text-sm mt-8">
+          <p style={styles.footerText}>
             Sistema privado para uso interno del consultorio.
           </p>
         </section>
@@ -136,3 +143,156 @@ export default function LoginPage() {
     </main>
   );
 }
+
+const styles: any = {
+  main: {
+    minHeight: "100vh",
+    background:
+      "radial-gradient(circle at top left,#0b5cff 0%,#020617 38%,#111827 100%)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "28px",
+    color: "white",
+  },
+
+  container: {
+    width: "100%",
+    maxWidth: "1180px",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+    gap: "34px",
+    alignItems: "center",
+  },
+
+  leftPanel: {
+    padding: "20px",
+  },
+
+  logoBox: {
+    background: "white",
+    borderRadius: "32px",
+    padding: "18px",
+    width: "158px",
+    height: "158px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 25px 60px rgba(0,0,0,0.35)",
+    marginBottom: "30px",
+  },
+
+  label: {
+    color: "#67e8f9",
+    fontWeight: "900",
+    letterSpacing: "3px",
+    marginBottom: "14px",
+  },
+
+  title: {
+    fontSize: "56px",
+    lineHeight: "1.05",
+    fontWeight: "900",
+    margin: "0 0 18px 0",
+  },
+
+  subtitle: {
+    fontSize: "19px",
+    lineHeight: "1.6",
+    color: "#dbeafe",
+    fontWeight: "700",
+    maxWidth: "590px",
+  },
+
+  phrase: {
+    marginTop: "36px",
+    color: "#a5f3fc",
+    fontWeight: "900",
+    fontSize: "18px",
+  },
+
+  loginCard: {
+    background: "rgba(255,255,255,0.96)",
+    borderRadius: "36px",
+    padding: "38px",
+    color: "#0f172a",
+    boxShadow: "0 30px 80px rgba(0,0,0,0.45)",
+    border: "1px solid rgba(125,211,252,0.35)",
+  },
+
+  mobileLogoBox: {
+    background: "white",
+    borderRadius: "26px",
+    padding: "14px",
+    width: "122px",
+    height: "122px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 15px 35px rgba(0,0,0,0.18)",
+    margin: "0 auto 24px auto",
+  },
+
+  accessLabel: {
+    color: "#0b5cff",
+    fontWeight: "900",
+    letterSpacing: "2px",
+    fontSize: "14px",
+    marginBottom: "8px",
+    textAlign: "center",
+  },
+
+  loginTitle: {
+    fontSize: "42px",
+    fontWeight: "900",
+    margin: "0 0 8px 0",
+    textAlign: "center",
+  },
+
+  loginSubtitle: {
+    color: "#64748b",
+    fontWeight: "700",
+    marginBottom: "28px",
+    textAlign: "center",
+  },
+
+  inputLabel: {
+    display: "block",
+    fontWeight: "900",
+    color: "#334155",
+    marginBottom: "8px",
+  },
+
+  input: {
+    width: "100%",
+    padding: "16px",
+    borderRadius: "18px",
+    border: "1px solid #cbd5e1",
+    marginBottom: "20px",
+    outline: "none",
+    fontSize: "16px",
+    fontWeight: "700",
+    color: "#0f172a",
+    background: "#f8fafc",
+  },
+
+  button: {
+    width: "100%",
+    background: "linear-gradient(90deg,#0b5cff,#06b6d4)",
+    color: "white",
+    padding: "17px",
+    borderRadius: "18px",
+    border: "none",
+    fontWeight: "900",
+    fontSize: "16px",
+    boxShadow: "0 15px 35px rgba(11,92,255,0.35)",
+  },
+
+  footerText: {
+    textAlign: "center",
+    color: "#94a3b8",
+    fontWeight: "700",
+    fontSize: "14px",
+    marginTop: "24px",
+  },
+};
