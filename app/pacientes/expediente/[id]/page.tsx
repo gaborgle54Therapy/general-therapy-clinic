@@ -135,29 +135,51 @@ export default function ExpedientePaciente() {
 
   function generarPDF() {
   const doc = new jsPDF();
-
   const fechaActual = new Date().toLocaleDateString("es-MX");
+  const nombrePaciente = paciente?.nombre || "Paciente";
 
-  doc.setFillColor(11, 92, 255);
-  doc.rect(0, 0, 220, 32, "F");
+  function encabezado(titulo = "Expediente clínico fisioterapéutico") {
+    doc.setFillColor(11, 92, 255);
+    doc.rect(0, 0, 220, 32, "F");
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(20);
-  doc.text("GENERAL THERAPY CLINIC", 14, 15);
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.text("GENERAL THERAPY CLINIC", 14, 14);
 
-  doc.setFontSize(10);
-  doc.text("Expediente clínico fisioterapéutico", 14, 23);
-  doc.text(`Fecha de impresión: ${fechaActual}`, 150, 23);
+    doc.setFontSize(9);
+    doc.text(titulo, 14, 23);
+    doc.text(`Fecha de impresión: ${fechaActual}`, 145, 23);
+  }
+
+  function piePagina() {
+    const pageCount = doc.getNumberOfPages();
+
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text("General Therapy Clinic - Expediente clínico confidencial", 14, 287);
+      doc.text(`Página ${i} de ${pageCount}`, 175, 287);
+    }
+  }
+
+  function yActual() {
+    return (doc as any).lastAutoTable?.finalY
+      ? (doc as any).lastAutoTable.finalY + 10
+      : 52;
+  }
+
+  encabezado();
 
   doc.setTextColor(15, 23, 42);
   doc.setFontSize(18);
-  doc.text("Expediente Clínico", 14, 45);
+  doc.text("Expediente Clínico Completo", 14, 45);
 
   autoTable(doc, {
     startY: 52,
     head: [["Datos del paciente", "Información"]],
     body: [
-      ["Paciente", paciente?.nombre || "Sin información"],
+      ["Paciente", nombrePaciente],
       ["Edad", paciente?.edad || "Sin información"],
       ["Sexo", paciente?.sexo || "Sin información"],
       ["Teléfono", paciente?.telefono || "Sin información"],
@@ -165,19 +187,17 @@ export default function ExpedientePaciente() {
       ["Total de evoluciones", String(evoluciones.length)],
       ["Estudios cargados", String(estudios.length)],
     ],
-    headStyles: {
-      fillColor: [11, 92, 255],
-      textColor: [255, 255, 255],
-    },
-    styles: {
-      fontSize: 9,
-      cellPadding: 3,
+    headStyles: { fillColor: [11, 92, 255], textColor: [255, 255, 255] },
+    styles: { fontSize: 9, cellPadding: 3 },
+    columnStyles: {
+      0: { cellWidth: 55, fontStyle: "bold" },
+      1: { cellWidth: 125 },
     },
   });
 
   if (historiaClinica) {
     autoTable(doc, {
-      startY: (doc as any).lastAutoTable.finalY + 10,
+      startY: yActual(),
       head: [["Historia Clínica", "Información"]],
       body: [
         ["Motivo de consulta", historiaClinica.motivo_consulta || ""],
@@ -197,14 +217,8 @@ export default function ExpedientePaciente() {
         ["Plan de tratamiento", historiaClinica.plan_tratamiento || ""],
         ["Pronóstico", historiaClinica.pronostico || ""],
       ],
-      headStyles: {
-        fillColor: [30, 58, 138],
-        textColor: [255, 255, 255],
-      },
-      styles: {
-        fontSize: 8,
-        cellPadding: 3,
-      },
+      headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255] },
+      styles: { fontSize: 8, cellPadding: 3, overflow: "linebreak" },
       columnStyles: {
         0: { cellWidth: 55, fontStyle: "bold" },
         1: { cellWidth: 125 },
@@ -212,97 +226,68 @@ export default function ExpedientePaciente() {
     });
   }
 
-  if (citas.length > 0) {
-    autoTable(doc, {
-      startY: (doc as any).lastAutoTable.finalY + 10,
-      head: [["Fecha", "Hora", "Motivo", "Estado"]],
-      body: citas.map((cita) => [
-        cita.fecha || "",
-        cita.hora?.slice(0, 5) || "",
-        cita.motivo || "",
-        cita.estado || "",
-      ]),
-      headStyles: {
-        fillColor: [14, 116, 144],
-        textColor: [255, 255, 255],
-      },
-      styles: {
-        fontSize: 8,
-        cellPadding: 3,
-      },
-    });
-  }
-
   if (evoluciones.length > 0) {
     autoTable(doc, {
-      startY: (doc as any).lastAutoTable.finalY + 10,
-      head: [["Fecha", "Dolor", "Tratamiento", "Ejercicios", "Progreso"]],
+      startY: yActual(),
+      head: [["Fecha", "EVA", "Dolor", "Tratamiento", "Ejercicios", "Progreso"]],
       body: evoluciones.map((evo) => [
         evo.fecha || "",
+        evo.eva !== null && evo.eva !== undefined ? String(evo.eva) : "Sin EVA",
         evo.dolor_actual || "",
         evo.tratamiento_realizado || "",
         evo.ejercicios || "",
         evo.progreso || "",
       ]),
-      headStyles: {
-        fillColor: [22, 163, 74],
-        textColor: [255, 255, 255],
-      },
-      styles: {
-        fontSize: 7,
-        cellPadding: 2.5,
-      },
+      headStyles: { fillColor: [22, 163, 74], textColor: [255, 255, 255] },
+      styles: { fontSize: 7, cellPadding: 2.5, overflow: "linebreak" },
+    });
+  }
+
+  if (citas.length > 0) {
+    autoTable(doc, {
+      startY: yActual(),
+      head: [["Fecha", "Hora", "Motivo", "Estado", "Notas"]],
+      body: citas.map((cita) => [
+        cita.fecha || "",
+        cita.hora?.slice(0, 5) || "",
+        cita.motivo || "",
+        cita.estado || "",
+        cita.notas || "",
+      ]),
+      headStyles: { fillColor: [14, 116, 144], textColor: [255, 255, 255] },
+      styles: { fontSize: 8, cellPadding: 3, overflow: "linebreak" },
     });
   }
 
   if (estudios.length > 0) {
     autoTable(doc, {
-      startY: (doc as any).lastAutoTable.finalY + 10,
-      head: [["Estudios / Archivos", "Fecha"]],
+      startY: yActual(),
+      head: [["Estudios / Archivos cargados", "Fecha"]],
       body: estudios.map((estudio) => [
         estudio.nombre_archivo || "Archivo",
         estudio.fecha || "",
       ]),
-      headStyles: {
-        fillColor: [124, 58, 237],
-        textColor: [255, 255, 255],
-      },
-      styles: {
-        fontSize: 8,
-        cellPadding: 3,
-      },
+      headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255] },
+      styles: { fontSize: 8, cellPadding: 3 },
     });
   }
 
-  const pageCount = doc.getNumberOfPages();
+  const finalY = yActual();
 
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-
-    doc.setFontSize(8);
-    doc.setTextColor(100, 116, 139);
-
-    doc.text(
-      "General Therapy Clinic - Expediente clínico confidencial",
-      14,
-      287
-    );
-
-    doc.text(`Página ${i} de ${pageCount}`, 175, 287);
+  if (finalY > 235) {
+    doc.addPage();
+    encabezado();
   }
 
-  const finalY = (doc as any).lastAutoTable?.finalY || 230;
+  doc.setTextColor(15, 23, 42);
+  doc.setFontSize(10);
+  doc.text("__________________________________", 14, 245);
+  doc.text("L.R.T.F. Gabriel González Ramírez", 14, 253);
+  doc.text("General Therapy Clinic", 14, 260);
 
-  if (finalY < 240) {
-    doc.setTextColor(15, 23, 42);
-    doc.setFontSize(10);
+  piePagina();
 
-    doc.text("__________________________________", 14, 255);
-    doc.text("L.R.T.F. Gabriel González Ramírez", 14, 262);
-    doc.text("General Therapy Clinic", 14, 268);
-  }
-
-  doc.save(`expediente_${paciente?.nombre || "paciente"}.pdf`);
+  doc.save(`expediente_${nombrePaciente}.pdf`);
 }
   return (
     <main style={styles.main}>
@@ -716,7 +701,7 @@ const styles: any = {
   },
 
   title: {
-    fontSize: "clap(32px, 6vw,52px)",
+    fontSize: "clap(32px, 6vw, 52px)",
     fontWeight: "900",
     color: "white",
     margin: 0,
@@ -767,7 +752,7 @@ const styles: any = {
   card: {
     background: "rgba(15,23,42,0.92)",
     borderRadius: "clamp(20px, 4vw, 30px)",
-    padding: "(clamp(18px, 3vw,30px)",
+    padding: "(clamp(18px, 3vw, 30px)",
     marginBottom: "28px",
     border: "1px solid rgba(125,211,252,0.18)",
     boxShadow: "0 20px 45px rgba(0,0,0,0.35)",
