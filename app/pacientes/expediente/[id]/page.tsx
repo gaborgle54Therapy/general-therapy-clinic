@@ -472,7 +472,7 @@ async function generarPDF(action: "ver" | "descargar") {
   doc.setFontSize(10);
   doc.text("__________________________________", 105, 238, { align: "center" });
   doc.text("Firma L.R.T.F Gabriel González Ramírez.", 105, 246, { align: "center" });
-  doc.text("CED. PROF:12445673", 105, 253, { align: "center" });
+  doc.text("CED. PROF:12445673", 105, 263, { align: "center" });
   doc.text("General Therapy Clinic", 105, 253, { align: "center" });
 
   const totalPaginas = doc.getNumberOfPages();
