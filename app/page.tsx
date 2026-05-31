@@ -16,7 +16,7 @@ export default function Home() {
   const [rol, setRol] = useState("");
 
   useEffect(() => {
-    const rolGuardado = localStorage.getItem("rol") || "";
+    const rolGuardado = (localStorage.getItem("rol") || ""). toLowerCase();
     setRol(rolGuardado);
 
     verificarSesionYCargarDatos();
@@ -158,7 +158,13 @@ export default function Home() {
           <StatCard titulo="Historias clínicas" valor={totalHistorias} color="#a78bfa" />
           <StatCard titulo="Evoluciones" valor={totalEvoluciones} color="#06b6d4" />
           <StatCard titulo="Estudios cargados" valor={totalEstudios} color="#fb7185" />
-          <StatCard titulo="Ingresos estimados hoy" valor={`$${citasHoy * 400}`} color="#4ade80" />
+          {rol === "admin" && (
+  <StatCard
+    titulo="Ingresos estimados hoy"
+    valor={`$${citasHoy * 400}`}
+    color="#4ade80"
+  />
+)}
         </section>
 
         <h2 style={styles.sectionTitle}>Accesos rápidos</h2>
