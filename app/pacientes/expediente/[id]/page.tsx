@@ -133,10 +133,25 @@ export default function ExpedientePaciente() {
     cargarExpediente();
   }
 
-  function generarPDF(action: "ver" | "descargar") {
+  async function cargarLogo(url: string) {
+  const respuesta = await fetch(url);
+  const blob = await respuesta.blob();
+
+  return new Promise<string>((resolve) => {
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+
+    reader.readAsDataURL(blob);
+  });
+}
+  async function generarPDF(action: "ver" | "descargar") {
   const doc = new jsPDF();
   const fechaActual = new Date().toLocaleDateString("es-MX");
   const nombrePaciente = paciente?.nombre || "Paciente";
+  const logoBase64 = await cargarLogo("/logo.png");
 
   function encabezado(titulo = "Expediente clínico fisioterapéutico") {
     doc.setFillColor(11, 92, 255);
@@ -144,7 +159,8 @@ export default function ExpedientePaciente() {
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(18);
-    doc.text("GENERAL THERAPY CLINIC", 14, 14);
+    doc.addImage(logoBase64, "PNG", 14, 5, 24, 24);
+    doc.text("GENERAL THERAPY CLINIC", 44, 14);
 
     doc.setFontSize(9);
     doc.text(titulo, 14, 23);
