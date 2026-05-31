@@ -133,17 +133,13 @@ export default function ExpedientePaciente() {
     cargarExpediente();
   }
 
-  async function cargarLogo(url: string) {
+ async function cargarLogo(url: string) {
   const respuesta = await fetch(url);
   const blob = await respuesta.blob();
 
   return new Promise<string>((resolve) => {
     const reader = new FileReader();
-
-    reader.onloadend = () => {
-      resolve(reader.result as string);
-    };
-
+    reader.onloadend = () => resolve(reader.result as string);
     reader.readAsDataURL(blob);
   });
 }
@@ -154,93 +150,142 @@ async function generarPDF(action: "ver" | "descargar") {
   const nombrePaciente = paciente?.nombre || "Paciente";
   const logoBase64 = await cargarLogo("/logo.png");
 
+  const azul = [0, 55, 125];
+  const azulClaro = [0, 115, 210];
+  const dorado = [184, 128, 30];
+  const grisTexto = [60, 70, 85];
+
   function marcaAgua() {
-    doc.setGState(new (doc as any).GState({ opacity: 0.06 }));
-    doc.addImage(logoBase64, "PNG", 55, 95, 100, 100);
+    doc.setGState(new (doc as any).GState({ opacity: 0.08 }));
+    doc.addImage(logoBase64, "PNG", 70, 95, 95, 95);
     doc.setGState(new (doc as any).GState({ opacity: 1 }));
   }
 
-  function encabezado(titulo = "Expediente clínico fisioterapéutico") {
-    doc.setFillColor(0, 80, 190);
-    doc.rect(0, 0, 220, 34, "F");
+  function footer(pagina: number, total: number) {
+    doc.setFillColor(0, 45, 100);
+    doc.rect(0, 279, 220, 18, "F");
+
+    doc.setDrawColor(dorado[0], dorado[1], dorado[2]);
+    doc.setLineWidth(0.8);
+    doc.line(0, 279, 220, 279);
+
+    doc.setFontSize(7);
+    doc.setTextColor(255, 255, 255);
+
+    doc.text("✉ gaborgle54@gmail.com", 12, 289);
+    doc.text("Whats: 449 387 7868", 70, 289);
+    doc.text("16 de septiembre norte #34", 125, 286);
+    doc.text("Pabellón de Arteaga, Aguascalientes", 125, 292);
+
+    doc.setFillColor(0, 115, 210);
+    doc.roundedRect(178, 285, 24, 7, 3, 3, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Página ${pagina} de ${total}`, 181, 290);
+  }
+
+  function encabezado(titulo = "EXPEDIENTE CLÍNICO FISIOTERAPÉUTICO") {
+    doc.setFillColor(0, 45, 100);
+    doc.rect(0, 0, 220, 31, "F");
 
     doc.addImage(logoBase64, "PNG", 12, 5, 22, 22);
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(15);
-    doc.text("GENERAL THERAPY CLINIC", 40, 14);
+    doc.text("GENERAL", 38, 12);
+    doc.setFontSize(11);
+    doc.text("THERAPY CLINIC", 38, 20);
 
-    doc.setFontSize(8);
-    doc.text(titulo, 40, 23);
-    doc.text(`Fecha de impresión: ${fechaActual}`, 145, 23);
+    doc.setFontSize(7);
+    doc.text(titulo, 38, 26);
+
+    doc.setFontSize(7);
+    doc.text("Fecha de impresión:", 170, 13);
+    doc.setFontSize(9);
+    doc.text(fechaActual, 170, 20);
+
+    doc.setDrawColor(0, 115, 210);
+    doc.setLineWidth(1);
+    doc.line(0, 31, 220, 31);
 
     marcaAgua();
   }
 
   function portada() {
-    doc.setFillColor(0, 80, 190);
-    doc.rect(0, 0, 220, 22, "F");
+    doc.setFillColor(0, 45, 100);
+    doc.rect(0, 0, 220, 30, "F");
 
-    doc.setFillColor(2, 6, 23);
-    doc.rect(0, 265, 220, 35, "F");
+    doc.setFillColor(0, 45, 100);
+    doc.rect(0, 260, 220, 40, "F");
 
-    doc.addImage(logoBase64, "PNG", 72, 35, 65, 65);
+    doc.setDrawColor(dorado[0], dorado[1], dorado[2]);
+    doc.setLineWidth(1.2);
+    doc.line(0, 30, 220, 23);
+    doc.line(0, 260, 220, 252);
 
-    doc.setTextColor(0, 61, 140);
-    doc.setFontSize(26);
-    doc.text("EXPEDIENTE CLÍNICO", 105, 130, { align: "center" });
+    doc.setGState(new (doc as any).GState({ opacity: 0.06 }));
+    doc.addImage(logoBase64, "PNG", 45, 125, 120, 120);
+    doc.setGState(new (doc as any).GState({ opacity: 1 }));
 
-    doc.setFontSize(16);
-    doc.text("FISIOTERAPÉUTICO", 105, 142, { align: "center" });
+    doc.addImage(logoBase64, "PNG", 76, 48, 58, 58);
 
-    doc.setDrawColor(0, 145, 255);
-    doc.line(55, 153, 155, 153);
+    doc.setTextColor(0, 45, 100);
+    doc.setFontSize(23);
+    doc.text("GENERAL", 105, 120, { align: "center" });
 
-    doc.setFontSize(11);
-    doc.setTextColor(15, 23, 42);
-    doc.text("Paciente:", 105, 175, { align: "center" });
+    doc.setTextColor(0, 90, 180);
+    doc.setFontSize(18);
+    doc.text("THERAPY CLINIC", 105, 131, { align: "center" });
+
+    doc.setTextColor(0, 45, 100);
+    doc.setFontSize(8);
+    doc.text("FISIOTERAPIA AVANZADA · RECUPERACIÓN · BIENESTAR", 105, 140, {
+      align: "center",
+    });
+
+    doc.setTextColor(0, 45, 100);
+    doc.setFontSize(30);
+    doc.text("EXPEDIENTE", 105, 170, { align: "center" });
+
+    doc.setTextColor(0, 90, 180);
+    doc.setFontSize(38);
+    doc.text("CLÍNICO", 105, 190, { align: "center" });
+
+    doc.setTextColor(0, 45, 100);
+    doc.setFontSize(14);
+    doc.text("F I S I O T E R A P É U T I C O", 105, 204, {
+      align: "center",
+    });
+
+    doc.setDrawColor(dorado[0], dorado[1], dorado[2]);
+    doc.line(68, 212, 142, 212);
+
+    doc.setFontSize(9);
+    doc.setTextColor(0, 45, 100);
+    doc.text("PACIENTE", 105, 232, { align: "center" });
 
     doc.setFontSize(13);
-    doc.setTextColor(0, 80, 190);
-    doc.text(nombrePaciente, 105, 184, { align: "center" });
+    doc.text(nombrePaciente, 105, 242, { align: "center" });
+
+    doc.setFontSize(9);
+    doc.text("FECHA DE GENERACIÓN", 105, 257, { align: "center" });
 
     doc.setFontSize(11);
-    doc.setTextColor(15, 23, 42);
-    doc.text("Fecha de generación:", 105, 202, { align: "center" });
+    doc.setTextColor(0, 90, 180);
+    doc.text(fechaActual, 105, 266, { align: "center" });
 
-    doc.setTextColor(0, 80, 190);
-    doc.text(fechaActual, 105, 211, { align: "center" });
-
+    doc.setFontSize(8);
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.text(
-      "Tu esfuerzo de hoy es la recuperación de mañana.",
-      105,
-      282,
-      { align: "center" }
-    );
-  }
+    doc.text("✉ gaborgle54@gmail.com", 14, 278);
+    doc.text("Whats: 449 387 7868", 14, 288);
 
-  function piePagina() {
-    const pageCount = doc.getNumberOfPages();
-
-    for (let i = 2; i <= pageCount; i++) {
-      doc.setPage(i);
-
-      doc.setFillColor(0, 80, 190);
-      doc.rect(0, 284, 220, 13, "F");
-
-      doc.setFontSize(8);
-      doc.setTextColor(255, 255, 255);
-      doc.text("General Therapy Clinic - Expediente clínico confidencial", 14, 292);
-      doc.text(`Página ${i - 1} de ${pageCount - 1}`, 175, 292);
-    }
+    doc.text("16 de septiembre norte #34", 120, 278);
+    doc.text("Pabellón de Arteaga, Aguascalientes", 120, 288);
   }
 
   function yActual() {
     return (doc as any).lastAutoTable?.finalY
       ? (doc as any).lastAutoTable.finalY + 10
-      : 52;
+      : 45;
   }
 
   portada();
@@ -248,13 +293,13 @@ async function generarPDF(action: "ver" | "descargar") {
   doc.addPage();
   encabezado();
 
-  doc.setTextColor(15, 23, 42);
-  doc.setFontSize(18);
-  doc.text("Expediente Clínico Completo", 14, 48);
+  doc.setTextColor(0, 45, 100);
+  doc.setFontSize(13);
+  doc.text("DATOS DEL PACIENTE", 14, 45);
 
   autoTable(doc, {
-    startY: 56,
-    head: [["Datos del paciente", "Información"]],
+    startY: 51,
+    head: [["Campo", "Información"]],
     body: [
       ["Paciente", nombrePaciente],
       ["Edad", paciente?.edad || "Sin información"],
@@ -264,18 +309,25 @@ async function generarPDF(action: "ver" | "descargar") {
       ["Total de evoluciones", String(evoluciones.length)],
       ["Estudios cargados", String(estudios.length)],
     ],
-    headStyles: { fillColor: [0, 80, 190], textColor: [255, 255, 255] },
-    styles: { fontSize: 9, cellPadding: 3 },
+    headStyles: { fillColor: [0, 55, 125], textColor: [255, 255, 255] },
+    styles: { fontSize: 8, cellPadding: 3, textColor: [60, 70, 85] as [number, number, number]},
     columnStyles: {
-      0: { cellWidth: 55, fontStyle: "bold" },
-      1: { cellWidth: 125 },
+      0: { cellWidth: 55, fontStyle: "bold", textColor: [0, 45, 100] },
+      1: { cellWidth: 130 },
     },
   });
 
   if (historiaClinica) {
+    doc.setDrawColor(0, 90, 180);
+    doc.line(14, yActual() - 3, 195, yActual() - 3);
+
+    doc.setTextColor(0, 45, 100);
+    doc.setFontSize(13);
+    doc.text("HISTORIA CLÍNICA", 14, yActual());
+
     autoTable(doc, {
-      startY: yActual(),
-      head: [["Historia Clínica", "Información"]],
+      startY: yActual() + 4,
+      head: [["Campo", "Información"]],
       body: [
         ["Motivo de consulta", historiaClinica.motivo_consulta || ""],
         ["Dolor actual", historiaClinica.dolor_actual || ""],
@@ -294,18 +346,25 @@ async function generarPDF(action: "ver" | "descargar") {
         ["Plan de tratamiento", historiaClinica.plan_tratamiento || ""],
         ["Pronóstico", historiaClinica.pronostico || ""],
       ],
-      headStyles: { fillColor: [0, 57, 120], textColor: [255, 255, 255] },
-      styles: { fontSize: 8, cellPadding: 3, overflow: "linebreak" },
+      headStyles: { fillColor: [0, 55, 125], textColor: [255, 255, 255] },
+      styles: { fontSize: 7.5, cellPadding: 2.5, overflow: "linebreak" },
       columnStyles: {
-        0: { cellWidth: 55, fontStyle: "bold" },
-        1: { cellWidth: 125 },
+        0: { cellWidth: 55, fontStyle: "bold", textColor: [0, 45, 100] },
+        1: { cellWidth: 130 },
       },
     });
   }
 
+  doc.addPage();
+  encabezado();
+
   if (evoluciones.length > 0) {
+    doc.setTextColor(0, 45, 100);
+    doc.setFontSize(13);
+    doc.text("EVOLUCIONES", 14, 45);
+
     autoTable(doc, {
-      startY: yActual(),
+      startY: 51,
       head: [["Fecha", "EVA", "Dolor", "Tratamiento", "Ejercicios", "Progreso"]],
       body: evoluciones.map((evo) => [
         evo.fecha || "",
@@ -315,14 +374,18 @@ async function generarPDF(action: "ver" | "descargar") {
         evo.ejercicios || "",
         evo.progreso || "",
       ]),
-      headStyles: { fillColor: [0, 105, 170], textColor: [255, 255, 255] },
-      styles: { fontSize: 7, cellPadding: 2.5, overflow: "linebreak" },
+      headStyles: { fillColor: [0, 55, 125], textColor: [255, 255, 255] },
+      styles: { fontSize: 7, cellPadding: 2.3, overflow: "linebreak" },
     });
   }
 
   if (citas.length > 0) {
+    doc.setTextColor(0, 45, 100);
+    doc.setFontSize(13);
+    doc.text("CITAS", 14, yActual());
+
     autoTable(doc, {
-      startY: yActual(),
+      startY: yActual() + 4,
       head: [["Fecha", "Hora", "Motivo", "Estado", "Notas"]],
       body: citas.map((cita) => [
         cita.fecha || "",
@@ -331,38 +394,41 @@ async function generarPDF(action: "ver" | "descargar") {
         cita.estado || "",
         cita.notas || "",
       ]),
-      headStyles: { fillColor: [14, 116, 144], textColor: [255, 255, 255] },
-      styles: { fontSize: 8, cellPadding: 3, overflow: "linebreak" },
+      headStyles: { fillColor: [0, 55, 125], textColor: [255, 255, 255] },
+      styles: { fontSize: 7, cellPadding: 2.3, overflow: "linebreak" },
     });
   }
 
-  if (estudios.length > 0) {
-    autoTable(doc, {
-      startY: yActual(),
-      head: [["Estudios / Archivos cargados", "Fecha"]],
-      body: estudios.map((estudio) => [
-        estudio.nombre_archivo || "Archivo",
-        estudio.fecha || "",
-      ]),
-      headStyles: { fillColor: [0, 80, 190], textColor: [255, 255, 255] },
-      styles: { fontSize: 8, cellPadding: 3 },
-    });
-  }
+  doc.setTextColor(0, 45, 100);
+  doc.setFontSize(13);
+  doc.text("ESTUDIOS / ARCHIVOS CARGADOS", 14, yActual());
 
-  const finalY = yActual();
+  autoTable(doc, {
+    startY: yActual() + 4,
+    head: [["Archivo", "Fecha"]],
+    body:
+      estudios.length > 0
+        ? estudios.map((estudio) => [
+            estudio.nombre_archivo || "Archivo",
+            estudio.fecha || "",
+          ])
+        : [["No se han cargado estudios", "—"]],
+    headStyles: { fillColor: [0, 55, 125], textColor: [255, 255, 255] },
+    styles: { fontSize: 7.5, cellPadding: 3 },
+  });
 
-  if (finalY > 235) {
-    doc.addPage();
-    encabezado();
-  }
-
-  doc.setTextColor(15, 23, 42);
+  doc.setTextColor(0, 45, 100);
   doc.setFontSize(10);
-  doc.text("__________________________________", 14, 253);
-  doc.text("Firma del responsable", 14, 260);
-  doc.text("General Therapy Clinic", 14, 267);
+  doc.text("__________________________________", 105, 238, { align: "center" });
+  doc.text("Firma L.R.T.F Gabriel González Ramírez", 105, 246, { align: "center" });
+  doc.text("General Therapy Clinic", 105, 253, { align: "center" });
 
-  piePagina();
+  const totalPaginas = doc.getNumberOfPages();
+
+  for (let i = 2; i <= totalPaginas; i++) {
+    doc.setPage(i);
+    footer(i - 1, totalPaginas - 1);
+  }
 
   const nombreArchivo = `expediente_${nombrePaciente}.pdf`;
 
