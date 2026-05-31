@@ -147,35 +147,93 @@ export default function ExpedientePaciente() {
     reader.readAsDataURL(blob);
   });
 }
-  async function generarPDF(action: "ver" | "descargar") {
+
+async function generarPDF(action: "ver" | "descargar") {
   const doc = new jsPDF();
   const fechaActual = new Date().toLocaleDateString("es-MX");
   const nombrePaciente = paciente?.nombre || "Paciente";
   const logoBase64 = await cargarLogo("/logo.png");
 
+  function marcaAgua() {
+    doc.setGState(new (doc as any).GState({ opacity: 0.06 }));
+    doc.addImage(logoBase64, "PNG", 55, 95, 100, 100);
+    doc.setGState(new (doc as any).GState({ opacity: 1 }));
+  }
+
   function encabezado(titulo = "Expediente clínico fisioterapéutico") {
-    doc.setFillColor(11, 92, 255);
-    doc.rect(0, 0, 220, 32, "F");
+    doc.setFillColor(0, 80, 190);
+    doc.rect(0, 0, 220, 34, "F");
+
+    doc.addImage(logoBase64, "PNG", 12, 5, 22, 22);
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.addImage(logoBase64, "PNG", 14, 5, 24, 24);
-    doc.text("GENERAL THERAPY CLINIC", 44, 14);
+    doc.setFontSize(15);
+    doc.text("GENERAL THERAPY CLINIC", 40, 14);
 
-    doc.setFontSize(9);
-    doc.text(titulo, 14, 23);
+    doc.setFontSize(8);
+    doc.text(titulo, 40, 23);
     doc.text(`Fecha de impresión: ${fechaActual}`, 145, 23);
+
+    marcaAgua();
+  }
+
+  function portada() {
+    doc.setFillColor(0, 80, 190);
+    doc.rect(0, 0, 220, 22, "F");
+
+    doc.setFillColor(2, 6, 23);
+    doc.rect(0, 265, 220, 35, "F");
+
+    doc.addImage(logoBase64, "PNG", 72, 35, 65, 65);
+
+    doc.setTextColor(0, 61, 140);
+    doc.setFontSize(26);
+    doc.text("EXPEDIENTE CLÍNICO", 105, 130, { align: "center" });
+
+    doc.setFontSize(16);
+    doc.text("FISIOTERAPÉUTICO", 105, 142, { align: "center" });
+
+    doc.setDrawColor(0, 145, 255);
+    doc.line(55, 153, 155, 153);
+
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42);
+    doc.text("Paciente:", 105, 175, { align: "center" });
+
+    doc.setFontSize(13);
+    doc.setTextColor(0, 80, 190);
+    doc.text(nombrePaciente, 105, 184, { align: "center" });
+
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42);
+    doc.text("Fecha de generación:", 105, 202, { align: "center" });
+
+    doc.setTextColor(0, 80, 190);
+    doc.text(fechaActual, 105, 211, { align: "center" });
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11);
+    doc.text(
+      "Tu esfuerzo de hoy es la recuperación de mañana.",
+      105,
+      282,
+      { align: "center" }
+    );
   }
 
   function piePagina() {
     const pageCount = doc.getNumberOfPages();
 
-    for (let i = 1; i <= pageCount; i++) {
+    for (let i = 2; i <= pageCount; i++) {
       doc.setPage(i);
+
+      doc.setFillColor(0, 80, 190);
+      doc.rect(0, 284, 220, 13, "F");
+
       doc.setFontSize(8);
-      doc.setTextColor(100, 116, 139);
-      doc.text("General Therapy Clinic - Expediente clínico confidencial", 14, 287);
-      doc.text(`Página ${i} de ${pageCount}`, 175, 287);
+      doc.setTextColor(255, 255, 255);
+      doc.text("General Therapy Clinic - Expediente clínico confidencial", 14, 292);
+      doc.text(`Página ${i - 1} de ${pageCount - 1}`, 175, 292);
     }
   }
 
@@ -185,14 +243,17 @@ export default function ExpedientePaciente() {
       : 52;
   }
 
+  portada();
+
+  doc.addPage();
   encabezado();
 
   doc.setTextColor(15, 23, 42);
   doc.setFontSize(18);
-  doc.text("Expediente Clínico Completo", 14, 45);
+  doc.text("Expediente Clínico Completo", 14, 48);
 
   autoTable(doc, {
-    startY: 52,
+    startY: 56,
     head: [["Datos del paciente", "Información"]],
     body: [
       ["Paciente", nombrePaciente],
@@ -203,7 +264,7 @@ export default function ExpedientePaciente() {
       ["Total de evoluciones", String(evoluciones.length)],
       ["Estudios cargados", String(estudios.length)],
     ],
-    headStyles: { fillColor: [11, 92, 255], textColor: [255, 255, 255] },
+    headStyles: { fillColor: [0, 80, 190], textColor: [255, 255, 255] },
     styles: { fontSize: 9, cellPadding: 3 },
     columnStyles: {
       0: { cellWidth: 55, fontStyle: "bold" },
@@ -233,7 +294,7 @@ export default function ExpedientePaciente() {
         ["Plan de tratamiento", historiaClinica.plan_tratamiento || ""],
         ["Pronóstico", historiaClinica.pronostico || ""],
       ],
-      headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255] },
+      headStyles: { fillColor: [0, 57, 120], textColor: [255, 255, 255] },
       styles: { fontSize: 8, cellPadding: 3, overflow: "linebreak" },
       columnStyles: {
         0: { cellWidth: 55, fontStyle: "bold" },
@@ -254,7 +315,7 @@ export default function ExpedientePaciente() {
         evo.ejercicios || "",
         evo.progreso || "",
       ]),
-      headStyles: { fillColor: [22, 163, 74], textColor: [255, 255, 255] },
+      headStyles: { fillColor: [0, 105, 170], textColor: [255, 255, 255] },
       styles: { fontSize: 7, cellPadding: 2.5, overflow: "linebreak" },
     });
   }
@@ -283,7 +344,7 @@ export default function ExpedientePaciente() {
         estudio.nombre_archivo || "Archivo",
         estudio.fecha || "",
       ]),
-      headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255] },
+      headStyles: { fillColor: [0, 80, 190], textColor: [255, 255, 255] },
       styles: { fontSize: 8, cellPadding: 3 },
     });
   }
@@ -297,21 +358,20 @@ export default function ExpedientePaciente() {
 
   doc.setTextColor(15, 23, 42);
   doc.setFontSize(10);
-  doc.text("__________________________________", 14, 245);
-  doc.text("L.R.T.F. Gabriel González Ramírez", 14, 253);
-  doc.text("General Therapy Clinic", 14, 260);
+  doc.text("__________________________________", 14, 253);
+  doc.text("Firma del responsable", 14, 260);
+  doc.text("General Therapy Clinic", 14, 267);
 
   piePagina();
 
-
   const nombreArchivo = `expediente_${nombrePaciente}.pdf`;
 
-if (action === "ver") {
-  const pdfUrl = doc.output("bloburl");
-  window.open(pdfUrl, "_blank");
-} else {
-  doc.save(nombreArchivo);
-}
+  if (action === "ver") {
+    const pdfUrl = doc.output("bloburl");
+    window.open(pdfUrl, "_blank");
+  } else {
+    doc.save(nombreArchivo);
+  }
 }
   return (
     <main style={styles.main}>
@@ -694,7 +754,7 @@ const styles: any = {
   minHeight: "100vh",
   background:
     "radial-gradient(circle at top left,#0b5cff 0%,#020617 35%,#111827 100%)",
-  padding: "clamp(14px, 3vw, 35px)",
+  padding: "clamp(18px, 3vw, 30px)",
 },
   container: {
     maxWidth: "1500px",
