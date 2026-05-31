@@ -178,13 +178,22 @@ export default function Home() {
           <MenuCard emoji="📈" titulo="Evoluciones" texto="Consultar avances clínicos." href="/evolucion" />
 
           {rol === "admin" && (
-            <MenuCard
-              emoji="👤"
-              titulo="Usuarios"
-              texto="Gestionar usuarios y permisos."
-              href="/usuarios"
-            />
-          )}
+  <>
+    <MenuCard
+      emoji="👤"
+      titulo="Usuarios"
+      texto="Gestionar usuarios y permisos."
+      href="/usuarios"
+    />
+
+    <MenuCard
+      emoji="💾"
+      titulo="Respaldo"
+      texto="Descargar respaldo de la base de datos."
+      href="/respaldo"
+    />
+  </>
+)}
         </section>
 
         <section style={styles.tableCard}>
