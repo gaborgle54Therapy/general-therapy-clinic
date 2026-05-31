@@ -133,7 +133,7 @@ export default function ExpedientePaciente() {
     cargarExpediente();
   }
 
-  function generarPDF() {
+  function generarPDF(action: "ver" | "descargar") {
   const doc = new jsPDF();
   const fechaActual = new Date().toLocaleDateString("es-MX");
   const nombrePaciente = paciente?.nombre || "Paciente";
@@ -287,7 +287,15 @@ export default function ExpedientePaciente() {
 
   piePagina();
 
-  doc.save(`expediente_${nombrePaciente}.pdf`);
+
+  const nombreArchivo = `expediente_${nombrePaciente}.pdf`;
+
+if (action === "ver") {
+  const pdfUrl = doc.output("bloburl");
+  window.open(pdfUrl, "_blank");
+} else {
+  doc.save(nombreArchivo);
+}
 }
   return (
     <main style={styles.main}>
@@ -355,14 +363,24 @@ export default function ExpedientePaciente() {
             </a>
 
             <button
-              onClick={generarPDF}
-              style={{
-                ...button("#16a34a"),
-                border: "none",
-              }}
-            >
-              Generar PDF
-            </button>
+  onClick={() => generarPDF("ver")}
+  style={{
+    ...button("#0ea5e9"),
+    border: "none",
+  }}
+>
+  Vista previa PDF
+</button>
+
+<button
+  onClick={() => generarPDF("descargar")}
+  style={{
+    ...button("#16a34a"),
+    border: "none",
+  }}
+>
+  Descargar PDF
+</button>
 
           </div>
 
