@@ -6,6 +6,26 @@ export default function CalendarioCitasPage() {
   const [fechaSeleccionada, setFechaSeleccionada] = useState(hoy);
   const [citas, setCitas] = useState<any[]>([]);
   const [filtroEstado, setFiltroEstado] = useState("Todos");
+  async function eliminarCita(id: number) {
+  const confirmar = confirm(
+    "¿Seguro que deseas eliminar esta cita? Esta acción no se puede deshacer."
+  );
+
+  if (!confirmar) return;
+
+  const { error } = await supabase
+    .from("citas")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("Error al eliminar cita: " + error.message);
+    return;
+  }
+
+  alert("Cita eliminada correctamente");
+  await cargarCitas(fechaSeleccionada);
+}
   const horarios = [
     "08:00", "09:00", "10:00", "11:00", "12:00", "13:00",
     "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00",
@@ -47,8 +67,21 @@ export default function CalendarioCitasPage() {
       alert("Error al cambiar estado: " + error.message);
       return;
     }
-    await cargarCitas(fechaSeleccionada);
+   async function cambiarEstado(id: number, nuevoEstado: string) {
+  const { error } = await supabase
+    .from("citas")
+    .update({ estado: nuevoEstado })
+    .eq("id", id);
+
+  if (error) {
+    alert("Error al cambiar estado: " + error.message);
+    return;
   }
+
+  await cargarCitas(fechaSeleccionada);
+}
+
+     }
   function cambiarFecha(e: any) {
     e.preventDefault();
     cargarCitas(fechaSeleccionada);
@@ -451,7 +484,12 @@ General Therapy Clinic`;
                           </button>
                           <button onClick={() => cambiarEstado(cita.id, "Cancelada")} style={botonAccion("#dc2626")}>
                             Cancelar
-                          </button>
+                            </button>
+                            <button onClick={() => eliminarCita(cita.id)} 
+  style={botonAccion("#991b1b")}
+>
+  Eliminar
+</button>
                           <a href={`/pacientes/expediente/${cita.paciente_id}`} style={linkAccion("#0b5cff", "white")}>
                             Expediente
                           </a>

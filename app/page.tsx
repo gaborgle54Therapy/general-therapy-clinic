@@ -133,7 +133,7 @@ export default function Home() {
 
               <div style={styles.heroButtons}>
                 <a
-                  href={`/citas/calendario?fecha=${new Date().toISOString().split("T")[0]}`}
+                  href={`/citas/semana?fecha=${new Date().toISOString().split("T")[0]}`}
                   style={styles.heroButton}
                 >
                   Ver agenda de hoy
@@ -172,7 +172,7 @@ export default function Home() {
         <section style={styles.menuGrid}>
           <MenuCard emoji="👥" titulo="Pacientes" texto="Gestionar pacientes registrados." href="/pacientes" />
           <MenuCard emoji="➕" titulo="Nuevo paciente" texto="Registrar nuevo paciente." href="/pacientes/nuevo" />
-          <MenuCard emoji="📅" titulo="Calendario" texto="Visualizar agenda diaria." href="/citas/calendario" />
+          <MenuCard emoji="📅" titulo="Calendario" texto="Visualizar agenda diaria." href="/citas/semana" />
           <MenuCard emoji="🗓️" titulo="Nueva cita" texto="Agendar nueva sesión." href="/citas/nueva" />
           <MenuCard emoji="📋" titulo="Historia clínica" texto="Crear expediente clínico." href="/historias/nueva" />
           <MenuCard emoji="📈" titulo="Evoluciones" texto="Consultar avances clínicos." href="/evolucion" />
@@ -200,7 +200,7 @@ export default function Home() {
           <div style={styles.tableHeader}>
             <h2 style={styles.tableTitle}>Próximas citas</h2>
 
-            <a href="/citas/calendario" style={styles.smallButton}>
+            <a href="/citas/semana" style={styles.smallButton}>
               Abrir calendario
             </a>
           </div>
